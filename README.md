@@ -1,1 +1,1 @@
-# hide-tabs-chrome-extension
+# Hide Tabs Chrome Extension

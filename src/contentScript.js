@@ -1,28 +1,22 @@
-var config = {
-    backgroundColor: 'white',
-    transition: '0.5s',
-};
 var cover = document.createElement('div');
-cover.style.position = 'fixed';
-cover.style.zIndex = 1000;
-cover.style.top = cover.style.bottom = cover.style.left = cover.style.right = 0;
-
-cover.style.background = config.backgroundColor;
-cover.style.transition = config.transition;
+cover.className = 'hideTabCover'
 
 document.body.appendChild(cover);
-
-function showTab() {
+var timer;
+function showTab(ev) {
+    clearTimeout(timer);
+    console.log("Showing tab on event '%s'", ev ? ev.type : 'no event')
     cover.style.opacity = 0;
-    cover.style.pointerEvents = 'none';
+    if (ev && ev.type == 'focus') {
+        timer = setTimeout(hideTab, 3000, { type: 'focus-timeout' });
+    }
 }
 
-function hideTab() {
+function hideTab(ev) {
+    clearTimeout(timer);
+    console.log("Hiding tab on event '%s'", ev ? ev.type : 'no event')
     cover.style.opacity = 1;
-    cover.style.pointerEvents = null;
 }
 
 window.onfocus = document.onmouseenter = showTab;
 window.onblur = document.onmouseleave = hideTab;
-
-showTab();

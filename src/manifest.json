@@ -3,7 +3,9 @@
   "description": "Hide tabs when not interacting with them.",
   "version": "0.1",
   "permissions": [
-    "activeTab"
+    "http://*/*",
+    "https://*/*",
+    "tabs"
   ],
   "background": {
     "scripts": [
@@ -14,13 +16,11 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*/*"
+        "http://*/*",
+        "https://*/*"
       ],
       "js": [
         "contentScript.js"
-      ],
-      "css": [
-        "contentScript.css"
       ]
     }
   ],

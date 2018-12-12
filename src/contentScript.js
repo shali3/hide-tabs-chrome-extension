@@ -19,4 +19,4 @@ function hideTab(ev) {
 }
 
 window.onfocus = document.onmouseenter = showTab;
-window.onblur = document.onmouseleave = hideTab;
+document.onmouseleave = hideTab;

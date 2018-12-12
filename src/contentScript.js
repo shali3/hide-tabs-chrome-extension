@@ -10,7 +10,7 @@
         registerEvents()
 
         document.body.appendChild(cover)
-
+        fetchConfig()
     }
 
     function cleanupOldCovers() {
@@ -22,11 +22,31 @@
             existingCover.parentNode.removeChild(existingCover);
         }
     }
-    function registerEvents() {
-        cover.addEventListener(cleanupEvent.type, onCleanup)
-        window.addEventListener('focus', showTab)
-        document.addEventListener('mouseenter', showTab)
-        document.addEventListener('mouseleave', hideTab)
+
+    function fetchConfig() {
+        console.log('Getting config...')
+        try {
+            chrome.runtime.sendMessage({ name: "getConfig" }, function (response) {
+                console.log(response)
+                const config = response.config
+                if (config) {
+                    console.log("Got config", config);
+                    onConfigUpdate(config)
+                }
+                else {
+                    console.warn('Get response without config.')
+                }
+            });
+        }
+        catch{
+            console.warn('Extension probably uninstalled. Cleaning up tab...')
+            cleanup()
+        }
+    }
+
+    function onConfigUpdate(config) {
+        cover.style.background = config.background;
+        cover.style.transition = config.transition;
     }
 
     function createCover() {
@@ -36,20 +56,21 @@
         style.position = 'fixed'
         style.zIndex = 10000
         style.right = style.left = style.top = style.bottom = 0
-        style.background = '#2b2b2b'
-        style.transition = '0.5s'
         style.pointerEvents = 'none'
         style.opacity = 0
 
         return cover;
     }
+    function onFocus(ev) {
+        showTab(ev);
+        timer = setTimeout(hideTab, 3000, { type: 'focus-timeout' })
+        fetchConfig()
+    }
+
     function showTab(ev) {
         clearTimeout(timer);
         console.log("Showing tab on event '%s'", ev ? ev.type : 'no event')
         cover.style.opacity = 0;
-        if (ev && ev.type == 'focus') {
-            timer = setTimeout(hideTab, 3000, { type: 'focus-timeout' })
-        }
     }
 
     function hideTab(ev) {
@@ -58,10 +79,17 @@
         cover.style.opacity = 1;
     }
 
-    function onCleanup(event) {
+    function registerEvents() {
+        cover.addEventListener(cleanupEvent.type, cleanup)
+        window.addEventListener('focus', onFocus)
+        document.addEventListener('mouseenter', showTab)
+        document.addEventListener('mouseleave', hideTab)
+    }
+
+    function cleanup() {
         console.log('Cleaning up old content script')
-        cover.removeEventListener(event.type, onCleanup)
-        window.removeEventListener('focus', showTab)
+        cover.removeEventListener(cleanupEvent.type, cleanup)
+        window.removeEventListener('focus', onFocus)
         document.removeEventListener('mouseenter', showTab)
         document.removeEventListener('mouseleave', hideTab)
         clearTimeout(timer);

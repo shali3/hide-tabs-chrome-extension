@@ -68,21 +68,30 @@
     }
 
     function showTab(ev) {
-        clearTimeout(timer);
+        clearTimer(ev);
         console.log("Showing tab on event '%s'", ev ? ev.type : 'no event')
         cover.style.opacity = 0;
     }
 
     function hideTab(ev) {
-        clearTimeout(timer);
+        clearTimer(ev);
         console.log("Hiding tab on event '%s'", ev ? ev.type : 'no event')
         cover.style.opacity = 1;
+    }
+
+    function clearTimer(ev) {
+        if (timer) {
+            console.log("Clearing timer on event '%s'", ev ? ev.type : 'no event')
+            clearTimeout(timer)
+            timer = null
+        }
     }
 
     function registerEvents() {
         cover.addEventListener(cleanupEvent.type, cleanup)
         window.addEventListener('focus', onFocus)
         document.addEventListener('mouseenter', showTab)
+        document.addEventListener('mousemove', clearTimer)
         document.addEventListener('mouseleave', hideTab)
     }
 
@@ -91,6 +100,7 @@
         cover.removeEventListener(cleanupEvent.type, cleanup)
         window.removeEventListener('focus', onFocus)
         document.removeEventListener('mouseenter', showTab)
+        document.removeEventListener('mousemove', clearTimer)
         document.removeEventListener('mouseleave', hideTab)
         clearTimeout(timer);
         timer = null;

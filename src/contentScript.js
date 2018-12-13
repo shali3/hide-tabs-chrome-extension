@@ -113,6 +113,7 @@
     function showTabWithTimeout(ev) {
         showTab(ev);
         if (!isMouseActive) {
+            clearTimeout(timer)
             timer = setTimeout(hideTab, 3000, { type: 'show-timeout' })
         }
     }

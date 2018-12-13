@@ -8,13 +8,15 @@
         register() {
             this.target.addEventListener(this.eventName, this.callback)
         }
-        unregister(){
+        unregister() {
             this.target.removeEventListener(this.eventName, this.callback)
         }
     }
 
     const cleanupEvent = new Event('cleanup');
     const coverClassName = 'hideTabCover';
+    var isMouseActive = false;
+    var isTabHidden = false;
     var cover;
     var timer;
     var events;
@@ -24,11 +26,11 @@
         cover = createCover()
         events = [
             new EventRegistrator(cover, cleanupEvent.type, cleanup),
-            new EventRegistrator(window, 'focus', showTabWithTimeout),
-            new EventRegistrator(window, 'keydown', showTabWithTimeout),
-            new EventRegistrator(document, 'mouseenter', showTab),
-            new EventRegistrator(document, 'mousemove', clearTimer),
-            new EventRegistrator(document, 'mouseleave', hideTab),
+            new EventRegistrator(window, 'focus', onFocus),
+            new EventRegistrator(window, 'keydown', onKeyDown),
+            new EventRegistrator(document, 'mouseenter', onMouseEnter),
+            new EventRegistrator(document, 'mousemove', onMouseMove),
+            new EventRegistrator(document, 'mouseleave', onMouseLeave),
         ]
         registerEvents()
 
@@ -84,22 +86,53 @@
 
         return cover;
     }
-    function showTabWithTimeout(ev) {
-        showTab(ev);
-        timer = setTimeout(hideTab, 3000, { type: 'show-timeout' })
+
+    function onFocus(ev) {
+        showTabWithTimeout(ev)
         fetchConfig()
     }
 
+    function onKeyDown(ev) {
+        showTabWithTimeout(ev)
+    }
+
+    function onMouseEnter(ev) {
+        isMouseActive = true
+        showTab(ev)
+    }
+
+    function onMouseMove(ev) {
+        isMouseActive = true
+        clearTimer(ev)
+    }
+    function onMouseLeave(ev) {
+        isMouseActive = false
+        hideTab(ev)
+    }
+
+    function showTabWithTimeout(ev) {
+        showTab(ev);
+        if (!isMouseActive) {
+            timer = setTimeout(hideTab, 3000, { type: 'show-timeout' })
+        }
+    }
+
     function showTab(ev) {
-        clearTimer(ev);
-        console.log("Showing tab on event '%s'", ev ? ev.type : 'no event')
-        cover.style.opacity = 0;
+        if (isTabHidden) {
+            console.log("Showing tab on event '%s'", ev ? ev.type : 'no event')
+            clearTimer(ev);
+            cover.style.opacity = 0;
+            isTabHidden = false
+        }
     }
 
     function hideTab(ev) {
-        clearTimer(ev);
-        console.log("Hiding tab on event '%s'", ev ? ev.type : 'no event')
-        cover.style.opacity = 1;
+        if (!isTabHidden) {
+            console.log("Hiding tab on event '%s'", ev ? ev.type : 'no event')
+            clearTimer(ev);
+            cover.style.opacity = 1;
+            isTabHidden = true
+        }
     }
 
     function clearTimer(ev) {

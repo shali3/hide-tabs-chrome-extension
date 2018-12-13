@@ -24,7 +24,8 @@
         cover = createCover()
         events = [
             new EventRegistrator(cover, cleanupEvent.type, cleanup),
-            new EventRegistrator(window, 'focus', onFocus),
+            new EventRegistrator(window, 'focus', showTabWithTimeout),
+            new EventRegistrator(window, 'keydown', showTabWithTimeout),
             new EventRegistrator(document, 'mouseenter', showTab),
             new EventRegistrator(document, 'mousemove', clearTimer),
             new EventRegistrator(document, 'mouseleave', hideTab),
@@ -83,9 +84,9 @@
 
         return cover;
     }
-    function onFocus(ev) {
+    function showTabWithTimeout(ev) {
         showTab(ev);
-        timer = setTimeout(hideTab, 3000, { type: 'focus-timeout' })
+        timer = setTimeout(hideTab, 3000, { type: 'show-timeout' })
         fetchConfig()
     }
 

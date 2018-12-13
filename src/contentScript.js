@@ -1,12 +1,34 @@
 (function () {
+    class EventRegistrator {
+        constructor(target, eventName, callback) {
+            this.target = target;
+            this.eventName = eventName;
+            this.callback = callback;
+        };
+        register() {
+            this.target.addEventListener(this.eventName, this.callback)
+        }
+        unregister(){
+            this.target.removeEventListener(this.eventName, this.callback)
+        }
+    }
+
     const cleanupEvent = new Event('cleanup');
     const coverClassName = 'hideTabCover';
     var cover;
     var timer;
+    var events;
 
     function init() {
         cleanupOldCovers();
         cover = createCover()
+        events = [
+            new EventRegistrator(cover, cleanupEvent.type, cleanup),
+            new EventRegistrator(window, 'focus', onFocus),
+            new EventRegistrator(document, 'mouseenter', showTab),
+            new EventRegistrator(document, 'mousemove', clearTimer),
+            new EventRegistrator(document, 'mouseleave', hideTab),
+        ]
         registerEvents()
 
         document.body.appendChild(cover)
@@ -88,21 +110,17 @@
     }
 
     function registerEvents() {
-        cover.addEventListener(cleanupEvent.type, cleanup)
-        window.addEventListener('focus', onFocus)
-        document.addEventListener('mouseenter', showTab)
-        document.addEventListener('mousemove', clearTimer)
-        document.addEventListener('mouseleave', hideTab)
+        for (var i = 0; i < events.length; i++) {
+            events[i].register()
+        }
     }
 
     function cleanup() {
         console.log('Cleaning up old content script')
-        cover.removeEventListener(cleanupEvent.type, cleanup)
-        window.removeEventListener('focus', onFocus)
-        document.removeEventListener('mouseenter', showTab)
-        document.removeEventListener('mousemove', clearTimer)
-        document.removeEventListener('mouseleave', hideTab)
-        clearTimeout(timer);
+        for (var i = 0; i < events.length; i++) {
+            events[i].unregister()
+        }
+        clearTimer();
         timer = null;
         cover = null;
     }

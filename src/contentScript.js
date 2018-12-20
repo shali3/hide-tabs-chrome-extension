@@ -79,7 +79,7 @@
         cover.className = coverClassName
         const style = cover.style
         style.position = 'fixed'
-        style.zIndex = 10000
+        style.zIndex = 99999999
         style.right = style.left = style.top = style.bottom = 0
         style.pointerEvents = 'none'
         style.opacity = 0

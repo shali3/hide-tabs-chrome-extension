@@ -23,18 +23,20 @@
 
     function init() {
         cleanupOldCovers();
-        cover = createCover()
-        events = [
-            new EventRegistrator(cover, cleanupEvent.type, cleanup),
-            new EventRegistrator(window, 'focus', onFocus),
-            new EventRegistrator(window, 'keydown', onKeyDown),
-            new EventRegistrator(document, 'mouseenter', onMouseEnter),
-            new EventRegistrator(document, 'mousemove', onMouseMove),
-            new EventRegistrator(document, 'mouseleave', onMouseLeave),
-        ]
-        registerEvents()
+        if (document.body) {
+            cover = createCover()
+            events = [
+                new EventRegistrator(cover, cleanupEvent.type, cleanup),
+                new EventRegistrator(window, 'focus', onFocus),
+                new EventRegistrator(window, 'keydown', onKeyDown),
+                new EventRegistrator(document, 'mouseenter', onMouseEnter),
+                new EventRegistrator(document, 'mousemove', onMouseMove),
+                new EventRegistrator(document, 'mouseleave', onMouseLeave),
+            ]
+            registerEvents()
 
-        document.body.appendChild(cover)
+            document.body.appendChild(cover)
+        }
         fetchConfig()
     }
 
@@ -107,14 +109,14 @@
     }
     function onMouseLeave(ev) {
         isMouseActive = false
-        hideTab(ev)
+        showTabWithTimeout(ev, 1000)
     }
 
-    function showTabWithTimeout(ev) {
+    function showTabWithTimeout(ev, timeout = 3000) {
         showTab(ev);
         if (!isMouseActive) {
             clearTimeout(timer)
-            timer = setTimeout(hideTab, 3000, { type: 'show-timeout' })
+            timer = setTimeout(hideTab, timeout, { type: 'show-timeout' })
         }
     }
 

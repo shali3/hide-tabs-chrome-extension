@@ -74,6 +74,9 @@
     function onConfigUpdate(config) {
         cover.style.background = config.background;
         cover.style.transition = config.transition;
+        if (!config.isOn) {
+            cleanup();
+        }
     }
 
     function createCover() {

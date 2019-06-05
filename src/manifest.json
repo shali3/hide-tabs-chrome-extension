@@ -32,7 +32,7 @@
     }
   ],
   "browser_action": {
-    "default_title": "Hide Tabs"
+    "default_title": "Toggle Hide Tabs"
   },
   "manifest_version": 2
 }

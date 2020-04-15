@@ -4,21 +4,28 @@ function init() {
     chrome.browserAction.onClicked.addListener(onBrowserActionClicked);
     executeScriptInAllTabs();
 }
-var state = {isOn:true}
 function onBrowserActionClicked(tab) {
     chrome.browserAction.getBadgeText({}, function (text) {
-        toggleExtension(text?true:false);
+        toggleExtension(text ? true : false);
     });
 }
-function toggleExtension(isOn){
+function toggleExtension(isOn) {
     chrome.browserAction.setBadgeText({ text: (isOn ? '' : 'OFF') });
-    state.isOn = isOn;
     executeScriptInAllTabs();
 }
+
+function getExtensionState() {
+    return new Promise((resolve, reject) => {
+        chrome.browserAction.getBadgeText({}, text => resolve(text != 'OFF'));
+    })
+}
+
 function onMessage(request, sender, sendResponse) {
-    console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
-    if (request.name == "getConfig")
-        sendResponse({ config: getConfig() });
+    console.log(sender.tab ? "Message from a content script:" + sender.tab.url : "Message from the extension");
+    if (request.name == "getConfig") {
+        getConfig().then(config => sendResponse({ config: config }))
+        return true
+    }
 }
 function executeScriptInAllTabs() {
     chrome.tabs.query({ url: ["http://*/*", "https://*/*",] }, function (tabs) {
@@ -28,13 +35,13 @@ function executeScriptInAllTabs() {
     });
 }
 
-function getConfig() {
+async function getConfig() {
+    const isOn = await getExtensionState();
     return {
-        isOn: state.isOn,
+        isOn: isOn,
         background: '#2b2b2b',
         transition: '0.5s'
-    }
+    };
 }
-
 
 init()
